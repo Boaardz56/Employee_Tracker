@@ -1,3 +1,6 @@
+
+use employees_DB;
+
 insert into employee (first_name, last_name)
 values ("Michael", "Scott"), ("Angela", "Martin"), ("Dwight", "Schrute"), ("Pam", "Beesley"), ("Jimothy", "Halpert"), ("Creed", "Braton");
 insert into role (title, salary)

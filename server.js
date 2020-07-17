@@ -1,8 +1,8 @@
-var mysql = require("mysql");
-var inquirer = require("inquirer");
-
+const mysql = require("mysql");
+const inquirer = require("inquirer");
+const cTable = require('console.table');
 // create the connection information for the sql database
-var connection = mysql.createConnection({
+const connection = mysql.createConnection({
   host: "localhost",
   port: 3306,
   user: "root",
@@ -35,69 +35,75 @@ function start() {
         if (answer.startQuestions === "View All Employees") {
           viewEmployees();
         }
-        else if(answer.startQuestions === "Add Employee") {
-          addEmployees();
-        }
-        else if(answer.startQuestions === "Update Employee Roles") {
-          updateEmployees();
-        }
-        else if(answer.start) {
+        // else if(answer.startQuestions === "Add Employee") {
+        //   addEmployees();
+        // }
+        // else if(answer.startQuestions === "Update Employee Roles") {
+        //   updateEmployees();
+        // }
+        // else if(answer.start) {
 
-        }
+        // }
         else{
           connection.end();
         }
       });
   }
 function viewEmployees() {
+  connection.query("SELECT employee.id, employee.first_name, employee.last_name, role.title, department.names AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id", function(err, res) {
+    if (err) throw err;
 
+    // Log all results of the SELECT statement
+    console.table(res);
+    connection.end();
+  });
 }
   // function to handle posting new items up for auction
-function addEmployees() {
-    // prompt for info about the item being put up for auction
-    inquirer
-      .prompt([
-        {
-          name: "item",
-          type: "input",
-          message: "What is the item you would like to submit?"
-        },
-        {
-          name: "category",
-          type: "input",
-          message: "What category would you like to place your auction in?"
-        },
-        {
-          name: "startingBid",
-          type: "input",
-          message: "What would you like your starting bid to be?",
-          validate: function(value) {
-            if (isNaN(value) === false) {
-              return true;
-            }
-            return false;
-          }
-        }
-      ])
-      .then(function(answer) {
-        // when finished prompting, insert a new item into the db with that info
-        connection.query(
-          "INSERT INTO auctions SET ?",
-          {
-            item_name: answer.item,
-            category: answer.category,
-            starting_bid: answer.startingBid || 0,
-            highest_bid: answer.startingBid || 0
-          },
-          function(err) {
-            if (err) throw err;
-            console.log("Your auction was created successfully!");
-            // re-prompt the user for if they want to bid or post
-            start();
-          }
-        );
-      });
-  }
+// function addEmployees() {
+//     // prompt for info about the item being put up for auction
+//     inquirer
+//       .prompt([
+//         {
+//           name: "item",
+//           type: "input",
+//           message: "What is the item you would like to submit?"
+//         },
+//         {
+//           name: "category",
+//           type: "input",
+//           message: "What category would you like to place your auction in?"
+//         },
+//         {
+//           name: "startingBid",
+//           type: "input",
+//           message: "What would you like your starting bid to be?",
+//           validate: function(value) {
+//             if (isNaN(value) === false) {
+//               return true;
+//             }
+//             return false;
+//           }
+//         }
+//       ])
+//       .then(function(answer) {
+//         // when finished prompting, insert a new item into the db with that info
+//         connection.query(
+//           "INSERT INTO auctions SET ?",
+//           {
+//             item_name: answer.item,
+//             category: answer.category,
+//             starting_bid: answer.startingBid || 0,
+//             highest_bid: answer.startingBid || 0
+//           },
+//           function(err) {
+//             if (err) throw err;
+//             console.log("Your auction was created successfully!");
+//             // re-prompt the user for if they want to bid or post
+//             start();
+//           }
+//         );
+//       });
+//   }
   
 //   function bidAuction() {
 //     // query the database for all items being auctioned
