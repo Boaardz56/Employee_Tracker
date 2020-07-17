@@ -32,7 +32,9 @@ function start() {
           "Add Employee",
           "Add Department",
           "Add Role",
-          "Update Employee Role",]
+          "Update Employee Role",
+          "Exit"
+        ]
       })
       .then(function(answer) {
         // based on their answer, either call the bid or the post functions
@@ -109,9 +111,7 @@ function addEmployees() {
           type: "input",
           message: "What is the employee's first and last name?"
         }
-      ])
-
-      .then(function(answer) {
+      ]).then(function(answer) {
         var string = answer.employeeAdd;
         var fullName = string.split(" ");
         console.log(fullName);
@@ -123,39 +123,90 @@ function addEmployees() {
       });
   }
 
-  function departmentAdd() {
+  function addDepartment() {
     inquirer
-      .prompt({
+      .prompt([
+        {
         name: "departmentAdd",
         type: "input",
-        message: ["To ADD a department, enter new department name"]
-      })
-  
-      .then(function (answer) {
+        message: "What new department would you like to add?"
+        }
+      ]).then(function (answer) {
         console.log(answer)
         var str = answer.employeeAdd;
-        var firstAndLastName = str.split(" ");
-        console.log(firstAndLastName);
-        var query = "INSERT INTO employee (first_name, last_name) VALUES ?";
-        connection.query(query, [[firstAndLastName]], function (err, res) {
-  
-          runSearch();
+        var fullName = str.split(" ");
+        connection.query("INSERT INTO employee (first_name, last_name) VALUES ?",
+           [[fullName]],
+           function (err, res) {
+            start();
+           });
         });
-      })
   }
   
+  function addRole() {
+    inquirer
+      .prompt([
+        {
+          name: "role",
+          type: "input",
+          message: "What new role would you like to add?"
+        }
+      ]).then(function (answer) {
+        var title = answer.title;
+  
+        inquirer
+          .prompt([
+            {
+              name: "salary",
+              type: "input",
+              message: "Enter new role salary"
+            }
+          ]).then(function (answer) {
+            var salary = answer.salary;
 
-  // {
-  //   name: "role",
-  //   type: "list",
-  //   message: "What is the employee's role?",
-  //   choices: [
-  //     "Management",
-  //     "Finance",
-  //     "Sales",
-  //     "Legal"
-  //   ]
-  // },
+            connection.query("INSERT INTO role (title, salary) VALUES ?",
+                 [[[title, salary]]],
+                  function (err, res) {
+                  if (err) {
+                    console.log(err);
+                  }
+  
+                  start();
+                });
+              })
+          })  
+  }
+  function updateEmployees() {
+    console.log('updating emp');
+    inquirer
+      .prompt({
+        name: "id",
+        type: "input",
+        message: "Enter employee id",
+      }).then(function (answer) {
+        var id = answer.id;
+        inquirer
+          .prompt({
+            name: "roleId",
+            type: "input",
+            message: "Enter role id",
+          })
+          .then(function (answer) {
+            var roleId = answer.roleId;
+  
+            connection.query("UPDATE employee SET role_id=? WHERE id=?",
+             [roleId, id], 
+             function (err, res) {
+              if (err) {
+                console.log(err);
+              }
+              start();
+            });
+          });
+      });
+  }
+
+
   // {
   //   name: "manager",
   //   type: "list",
@@ -165,66 +216,3 @@ function addEmployees() {
   //     "Jan Levingston"
   //     ]
   // }
-//   function bidAuction() {
-//     // query the database for all items being auctioned
-//     connection.query("SELECT * FROM auctions", function(err, results) {
-//       if (err) throw err;
-//       // once you have the items, prompt the user for which they'd like to bid on
-//       inquirer
-//         .prompt([
-//           {
-//             name: "choice",
-//             type: "rawlist",
-//             choices: function() {
-//               var choiceArray = [];
-//               for (var i = 0; i < results.length; i++) {
-//                 choiceArray.push(results[i].item_name);
-//               }
-//               return choiceArray;
-//             },
-//             message: "What auction would you like to place a bid in?"
-//           },
-//           {
-//             name: "bid",
-//             type: "input",
-//             message: "How much would you like to bid?"
-//           }
-//         ])
-//         .then(function(answer) {
-//           // get the information of the chosen item
-//           var chosenItem;
-//           for (var i = 0; i < results.length; i++) {
-//             if (results[i].item_name === answer.choice) {
-//               chosenItem = results[i];
-//             }
-//           }
-  
-//           // determine if bid was high enough
-//           if (chosenItem.highest_bid < parseInt(answer.bid)) {
-//             // bid was high enough, so update db, let the user know, and start over
-//             connection.query(
-//               "UPDATE auctions SET ? WHERE ?",
-//               [
-//                 {
-//                   highest_bid: answer.bid
-//                 },
-//                 {
-//                   id: chosenItem.id
-//                 }
-//               ],
-//               function(error) {
-//                 if (error) throw err;
-//                 console.log("Bid placed successfully!");
-//                 start();
-//               }
-//             );
-//           }
-//           else {
-//             // bid wasn't high enough, so apologize and start over
-//             console.log("Your bid was too low. Try again...");
-//             start();
-//           }
-//         });
-//     });
-//   }
-  
