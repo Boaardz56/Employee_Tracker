@@ -4,7 +4,7 @@ A user is asking for an app where they can view and manage the departments, role
 
 ## Deployment
 
-![EmployeeGIF](https://github.com/Boaardz56/Employee_Tracker/blob/master/Assets/EmployeeGIF.gif)
+![EmployeeGIF](https://github.com/Boaardz56/Employee_Tracker/blob/master/Assets/Updated%20GIF.gif)
 
 ![DBeaverView](https://github.com/Boaardz56/Employee_Tracker/blob/master/Assets/DbeaverView.png)
 
