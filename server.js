@@ -69,7 +69,6 @@ function start() {
 
           case "Exit":
             connection.end();
-            break;
         }
       });
   }
@@ -86,8 +85,9 @@ function viewEmployees() {
 function viewDepartments() {
   connection.query("SELECT names FROM department", function (err, res) {
       console.table(res);
-      connection.end();
-  });
+    
+  })
+  start();
 }
 
 function viewManagers() {
@@ -96,7 +96,6 @@ function viewManagers() {
     for (var i = 0; i < res.length; i++) {
       console.log(res[i].first_name + " " + res[i].last_name + " || Id: " + res[i].id);
     }
-
     start();
   });
 }
@@ -110,6 +109,15 @@ function addEmployees() {
           name: "employeeAdd",
           type: "input",
           message: "What is the employee's first and last name?"
+        },
+        {
+         name: "manager",
+         type: "list",
+         message: "What is the employee's manager?",
+         choices: [
+            "Michael Scott",
+            "Jan Levingston"
+           ]
         }
       ]).then(function(answer) {
         var string = answer.employeeAdd;
@@ -163,9 +171,16 @@ function addEmployees() {
             }
           ]).then(function (answer) {
             var salary = answer.salary;
-
-            connection.query("INSERT INTO role (title, salary) VALUES ?",
-                 [[[title, salary]]],
+            inquirer
+            .prompt({
+              name: "department_id",
+              type: "input",
+              message: ["Enter new role department id"]
+            })
+            .then(function (answer) {
+              var department_id = answer.department_id;
+            connection.query("INSERT INTO role (title, salary,department_id) VALUES ?",
+                 [[[title, salary,department_id]]],
                   function (err, res) {
                   if (err) {
                     console.log(err);
@@ -175,7 +190,9 @@ function addEmployees() {
                 });
               })
           })  
+    });
   }
+  
   function updateEmployees() {
     console.log('updating emp');
     inquirer
