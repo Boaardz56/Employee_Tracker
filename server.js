@@ -26,26 +26,48 @@ function start() {
         type: "list",
         message: "What would you like to do?",
         choices: [
-          "View All Employees",
+          "View all employees",
+          "View all departments",
+          "View all managers",
           "Add Employee",
+          "Add Department",
+          "Add Role",
           "Update Employee Role",]
       })
       .then(function(answer) {
         // based on their answer, either call the bid or the post functions
-        if (answer.startQuestions === "View All Employees") {
-          viewEmployees();
-        }
-        // else if(answer.startQuestions === "Add Employee") {
-        //   addEmployees();
-        // }
-        // else if(answer.startQuestions === "Update Employee Roles") {
-        //   updateEmployees();
-        // }
-        // else if(answer.start) {
+        switch (answer.startQuestions) {
+          case "View all employees":
+            viewEmployees();
+            break;
 
-        // }
-        else{
-          connection.end();
+          case "View all departments":
+            viewDepartments();
+            break;
+            
+          case "View all managers":
+            viewManagers();
+            break;
+
+          case "Add Employee":
+            addEmployees();
+            break;
+
+          case "Add Department":
+            addDepartment();
+            break;
+          
+           case "Add Role":
+            addRole();
+            break;
+          
+          case "Update Employee Role":
+            updateEmployees();
+            break;
+
+          case "Exit":
+            connection.end();
+            break;
         }
       });
   }
@@ -55,56 +77,94 @@ function viewEmployees() {
 
     // Log all results of the SELECT statement
     console.table(res);
-    connection.end();
+    start();
   });
 }
-  // function to handle posting new items up for auction
-// function addEmployees() {
-//     // prompt for info about the item being put up for auction
-//     inquirer
-//       .prompt([
-//         {
-//           name: "item",
-//           type: "input",
-//           message: "What is the item you would like to submit?"
-//         },
-//         {
-//           name: "category",
-//           type: "input",
-//           message: "What category would you like to place your auction in?"
-//         },
-//         {
-//           name: "startingBid",
-//           type: "input",
-//           message: "What would you like your starting bid to be?",
-//           validate: function(value) {
-//             if (isNaN(value) === false) {
-//               return true;
-//             }
-//             return false;
-//           }
-//         }
-//       ])
-//       .then(function(answer) {
-//         // when finished prompting, insert a new item into the db with that info
-//         connection.query(
-//           "INSERT INTO auctions SET ?",
-//           {
-//             item_name: answer.item,
-//             category: answer.category,
-//             starting_bid: answer.startingBid || 0,
-//             highest_bid: answer.startingBid || 0
-//           },
-//           function(err) {
-//             if (err) throw err;
-//             console.log("Your auction was created successfully!");
-//             // re-prompt the user for if they want to bid or post
-//             start();
-//           }
-//         );
-//       });
-//   }
+
+function viewDepartments() {
+  connection.query("SELECT names FROM department", function (err, res) {
+      console.table(res);
+      connection.end();
+  });
+}
+
+function viewManagers() {
+  var query = "SELECT id, first_name, last_name FROM employee WHERE id IN (SELECT manager_id FROM employee WHERE manager_id IS NOT NULL)";
+  connection.query(query, function (err, res) {
+    for (var i = 0; i < res.length; i++) {
+      console.log(res[i].first_name + " " + res[i].last_name + " || Id: " + res[i].id);
+    }
+
+    start();
+  });
+}
+
+//function to handle posting new employees
+function addEmployees() {
+    // prompt for info about the item being put up for auction
+    inquirer
+      .prompt([
+        {
+          name: "employeeAdd",
+          type: "input",
+          message: "What is the employee's first and last name?"
+        }
+      ])
+
+      .then(function(answer) {
+        var string = answer.employeeAdd;
+        var fullName = string.split(" ");
+        console.log(fullName);
+        connection.query("INSERT INTO employee (first_name, last_name) VALUES ?",
+           [[fullName]],
+           function (err, res) {
+            start();
+           });
+      });
+  }
+
+  function departmentAdd() {
+    inquirer
+      .prompt({
+        name: "departmentAdd",
+        type: "input",
+        message: ["To ADD a department, enter new department name"]
+      })
   
+      .then(function (answer) {
+        console.log(answer)
+        var str = answer.employeeAdd;
+        var firstAndLastName = str.split(" ");
+        console.log(firstAndLastName);
+        var query = "INSERT INTO employee (first_name, last_name) VALUES ?";
+        connection.query(query, [[firstAndLastName]], function (err, res) {
+  
+          runSearch();
+        });
+      })
+  }
+  
+
+  // {
+  //   name: "role",
+  //   type: "list",
+  //   message: "What is the employee's role?",
+  //   choices: [
+  //     "Management",
+  //     "Finance",
+  //     "Sales",
+  //     "Legal"
+  //   ]
+  // },
+  // {
+  //   name: "manager",
+  //   type: "list",
+  //   message: "What is the employee's manager?",
+  //   choices: [
+  //     "Michael Scott",
+  //     "Jan Levingston"
+  //     ]
+  // }
 //   function bidAuction() {
 //     // query the database for all items being auctioned
 //     connection.query("SELECT * FROM auctions", function(err, results) {
